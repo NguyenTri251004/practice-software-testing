@@ -1,45 +1,64 @@
-name: API Tests
+name: API Tests (Postman)
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ main ]   # chạy khi push lên nhánh main
+  pull_request:          # chạy khi có pull request vào main
+
+concurrency: production_environment  # tránh chạy trùng job khi push liên tục
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  api-tests:
+    runs-on: ubuntu-22.04   # môi trường runner
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      # 1. Lấy source code từ repo
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Start backend via docker-compose
-        run: docker compose up -d --build
-
-      - name: Install Composer dependencies
-        run: docker compose run --rm laravel-api composer install --no-scripts --no-interaction
-        
-      - name: Seed database
-        run: docker compose exec laravel-api php artisan migrate:fresh --seed
-
-      - name: Sanity check (GET /status)
-        run: curl -f http://localhost:8091/status
-
-      - name: Install Newman + htmlextra
+      # 2. Khởi động toàn bộ containers (Laravel API + DB + các service khác)
+      - name: Start containers
         run: |
-          npm install -g newman newman-reporter-htmlextra
+          export DISABLE_LOGGING=true
+          docker compose -f docker-compose.yml up -d --force-recreate
 
-      - name: Run Postman collection
+      # 3. Chờ container khởi động (đảm bảo DB & API sẵn sàng)
+      - name: Sleep for 60 seconds
+        run: sleep 60s
+        shell: bash
+
+      # 4. Reset + seed lại database trong container laravel-api
+      - name: Create & Seed database
         run: |
+          docker compose exec -T laravel-api php artisan migrate:refresh --seed
+
+      # 5. Kiểm tra nhanh API đã chạy chưa (GET /status)
+      - name: GET /status
+        run: curl -f -X GET 'http://localhost:8091/status'
+
+      # 6. Cài Node.js (cần để chạy Newman)
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 7. Cài newman + reporter (htmlextra để tạo báo cáo đẹp)
+      - name: Install newman + reporter
+        run: npm i -g newman newman-reporter-htmlextra
+
+      # 8. Chạy Postman collection test
+      - name: Run Postman collection (no env file)
+        run: |
+          mkdir -p reports
           newman run api-tests/collections/toolshop.postman_collection.json \
             --env-var baseUrl="http://localhost:8091" \
             --reporters cli,junit,htmlextra \
             --reporter-junit-export reports/junit.xml \
             --reporter-htmlextra-export reports/report.html
 
-      - name: Upload test artifacts
+      # 9. Upload báo cáo test (artifact để tải về xem)
+      - name: Upload API test reports
         uses: actions/upload-artifact@v4
         with:
           name: api-test-reports
-          path: reports/
+          path: reports/*
