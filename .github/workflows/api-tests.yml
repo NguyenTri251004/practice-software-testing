@@ -1,0 +1,42 @@
+name: API Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Start backend via docker-compose
+        run: docker compose up -d --build
+
+      - name: Seed database
+        run: docker compose exec laravel-api php artisan migrate:fresh --seed
+
+      - name: Sanity check (GET /status)
+        run: curl -f http://localhost:8091/status
+
+      - name: Install Newman + htmlextra
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+
+      - name: Run Postman collection
+        run: |
+          newman run api-tests/collections/toolshop.postman_collection.json \
+            --env-var baseUrl="http://localhost:8091" \
+            --reporters cli,junit,htmlextra \
+            --reporter-junit-export reports/junit.xml \
+            --reporter-htmlextra-export reports/report.html
+
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-test-reports
+          path: reports/

@@ -1,0 +1,179 @@
+{
+	"info": {
+		"_postman_id": "50a333a7-6c00-48c6-b279-ba0e812ed040",
+		"name": "My Collection",
+		"description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47860938",
+		"_collection_link": "https://tr-nguy-n-s-team-925547.postman.co/workspace/Team-Workspace~7fbe3662-0a29-46ed-89dc-c463eb84a323/collection/47860938-50a333a7-6c00-48c6-b279-ba0e812ed040?action=share&source=collection_link&creator=47860938"
+	},
+	"item": [
+		{
+			"name": "Login with Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"admin@practicesoftwaretesting.com\",\r\n  \"password\": \"welcome01\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8091/users/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8091",
+					"path": [
+						"users",
+						"login"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
+			"name": "Add Product",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwOTEvdXNlcnMvbG9naW4iLCJpYXQiOjE3NTYwNDI3MTQsImV4cCI6MTc3MTY0MjcxNCwibmJmIjoxNzU2MDQyNzE0LCJqdGkiOiJ4NUl1ZTBpZDZrMUhZc1RZIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjciLCJyb2xlIjoiYWRtaW4ifQ.sBVIIrkcD7zlacj3Kc48MUz1k7LCct1x864eH_6GbdQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": 1,\r\n  \"name\": \"Lorum ipsum\",\r\n  \"description\": \"Lorum ipsum\",\r\n  \"price\": 9.99,\r\n  \"is_location_offer\": 1,\r\n  \"is_rental\": 0\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8091//products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8091",
+					"path": [
+						"",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Product",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwOTEvdXNlcnMvbG9naW4iLCJpYXQiOjE3NTYwNDI3MTQsImV4cCI6MTc3MTY0MjcxNCwibmJmIjoxNzU2MDQyNzE0LCJqdGkiOiJ4NUl1ZTBpZDZrMUhZc1RZIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjciLCJyb2xlIjoiYWRtaW4ifQ.sBVIIrkcD7zlacj3Kc48MUz1k7LCct1x864eH_6GbdQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Laptop Pro\",\r\n  \"description\": \"Updated description\",\r\n  \"price\": 0,\r\n  \"category_id\": 1,\r\n  \"brand_id\": 1,\r\n  \"product_image_id\": 1,\r\n  \"is_location_offer\": 0,\r\n  \"is_rental\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8091/products/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8091",
+					"path": [
+						"products",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get related Product",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8091/products/1/related",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8091",
+					"path": [
+						"products",
+						"1",
+						"related"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
