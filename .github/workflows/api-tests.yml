@@ -17,6 +17,9 @@ jobs:
       - name: Start backend via docker-compose
         run: docker compose up -d --build
 
+      - name: Install Composer dependencies
+        run: docker compose run --rm laravel-api composer install --no-scripts --no-interaction
+        
       - name: Seed database
         run: docker compose exec laravel-api php artisan migrate:fresh --seed
 
