@@ -21,9 +21,9 @@ jobs:
           export DISABLE_LOGGING=true
           docker compose -f docker-compose.yml up -d --force-recreate
 
-      # Chờ containers lên (60s)
+      # Chờ containers lên (120s)
       - name: Sleep for 60 seconds
-        run: sleep 60s
+        run: sleep 120s
         shell: bash
 
       # Run migrations & seed database
