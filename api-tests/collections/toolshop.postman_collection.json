@@ -5,7 +5,7 @@
 		"description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "47860938",
-		"_collection_link": "https://tr-nguy-n-s-team-925547.postman.co/workspace/7fbe3662-0a29-46ed-89dc-c463eb84a323/collection/47860938-50a333a7-6c00-48c6-b279-ba0e812ed040?action=share&source=collection_link&creator=47860938"
+		"_collection_link": "https://tr-nguy-n-s-team-925547.postman.co/workspace/Team-Workspace~7fbe3662-0a29-46ed-89dc-c463eb84a323/collection/47860938-50a333a7-6c00-48c6-b279-ba0e812ed040?action=share&source=collection_link&creator=47860938"
 	},
 	"item": [
 		{
@@ -18,9 +18,17 @@
 							"pm.test(\"Status code is 200\", function () {",
 							"    pm.response.to.have.status(200);",
 							"});",
-							"const jsonData = pm.response.json();",
-							"const token = jsonData.access_token; ",
-							"pm.environment.set(\"authToken\", token);"
+							"",
+							"if (pm.response.code === 200) {",
+							"    try {",
+							"        let jsonData = pm.response.json();",
+							"        if (jsonData && jsonData.access_token) {",
+							"            pm.environment.set(\"authToken\", jsonData.access_token);",
+							"        }",
+							"    } catch (e) {",
+							"        console.log(\"Không parse được JSON:\", e);",
+							"    }",
+							"}"
 						],
 						"type": "text/javascript",
 						"packages": {}
