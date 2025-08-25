@@ -1,9 +1,11 @@
-name: API Tests
+name: API Tests (Postman)
 
 on:
   push:
     branches: [ main ]
   pull_request:
+
+concurrency: production_environment
 
 jobs:
   api-tests:
@@ -13,40 +15,49 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Start backend containers
       - name: Start containers
-        run: docker compose up -d
-
-      - name: Run migrations and seed
-        run: docker compose exec -T laravel-api php artisan migrate:fresh --seed
-
-      - name: Wait for API
         run: |
-          timeout 120s bash -c '
-            until curl -s http://localhost:8091/users/login > /dev/null; do
-              echo "⏳ Waiting for API to be ready..."
-              sleep 5
-            done
-          '
+          export DISABLE_LOGGING=true
+          docker compose -f docker-compose.yml up -d --force-recreate
 
-      # Install newman và reporter HTML extra
-      - name: Install Newman
+      # Chờ containers lên (60s)
+      - name: Sleep for 60 seconds
+        run: sleep 60s
+        shell: bash
+
+      # Run migrations & seed database
+      - name: Create & Seed database
         run: |
-          npm install -g newman
-          npm install -g newman-reporter-htmlextra
+          docker compose exec -T laravel-api php artisan migrate:refresh --seed
 
-      - name: Run API Tests with Newman
+      # Sanity check API (GET /status)
+      - name: GET /status
+        run: curl -f -X GET 'http://localhost:8091/status'
+
+      # Setup Node.js
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Install Newman + HTML reporter
+      - name: Install newman + reporter
+        run: npm i -g newman newman-reporter-htmlextra
+
+      # Run Postman collection
+      - name: Run Postman collection
         run: |
           mkdir -p reports
           newman run api-tests/collections/toolshop.postman_collection.json \
-            -e api-tests/environments/local.json \
-            --reporters cli,json,htmlextra \
-            --timeout-request 30000 \
-            --delay-request 1000 \
-            --reporter-json-export reports/newman-report.json \
-            --reporter-htmlextra-export reports/newman-report.html
+            --env-var baseUrl="http://localhost:8091" \
+            --reporters cli,junit,htmlextra \
+            --reporter-junit-export reports/junit.xml \
+            --reporter-htmlextra-export reports/report.html
 
-      - name: Upload Newman Reports
+      # Upload reports as artifact
+      - name: Upload API test reports
         uses: actions/upload-artifact@v4
         with:
-          name: newman-reports
+          name: api-test-reports
           path: reports/
