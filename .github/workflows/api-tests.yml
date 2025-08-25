@@ -50,7 +50,7 @@ jobs:
         run: |
           mkdir -p reports
           newman run api-tests/collections/toolshop.postman_collection.json \
-            --env-var baseUrl="http://localhost:8091" \
+            --env-var baseURL="http://localhost:8091" \
             --reporters cli,junit,htmlextra \
             --reporter-junit-export reports/junit.xml \
             --reporter-htmlextra-export reports/report.html
